@@ -1,23 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Loader } from '../Loader';
 import { Todo } from '../../types/Todo';
 import { User } from '../../types/User';
+import { getUser } from '../../api';
 
 type Props = {
-  selectedTodo: Todo | null;
   onCloseModal: () => void;
-  loadingTodos: boolean;
-  user: User;
+  id: number;
+  todos: Todo[];
 };
 
 export const TodoModal: React.FC<Props> = props => {
-  const { user, selectedTodo, onCloseModal, loadingTodos } = props;
+  const { id, onCloseModal, todos } = props;
+
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const selected = todos.find(todo => todo.id === id);
+
+  useEffect(() => {
+    if (selected) {
+      getUser(selected.userId)
+        .then(person => {
+          if (person.id === selected.userId) {
+            setUser(person);
+          }
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [selected]);
 
   return (
     <div className="modal is-active" data-cy="modal">
       <div className="modal-background" />
 
-      {loadingTodos ? (
+      {loading ? (
         <Loader />
       ) : (
         <div className="modal-card">
@@ -26,7 +42,7 @@ export const TodoModal: React.FC<Props> = props => {
               className="modal-card-title has-text-weight-medium"
               data-cy="modal-header"
             >
-              {`Todo #${selectedTodo?.id}`}
+              {`Todo #${id}`}
             </div>
 
             {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
@@ -40,11 +56,11 @@ export const TodoModal: React.FC<Props> = props => {
 
           <div className="modal-card-body">
             <p className="block" data-cy="modal-title">
-              {selectedTodo?.title}
+              {selected?.title}
             </p>
 
             <p className="block" data-cy="modal-user">
-              {selectedTodo?.completed ? (
+              {selected?.completed ? (
                 <strong className="has-text-success">Done</strong>
               ) : (
                 <strong className="has-text-danger">Planned</strong>
@@ -52,7 +68,7 @@ export const TodoModal: React.FC<Props> = props => {
 
               {' by '}
 
-              <a href="mailto:Sincere@april.biz">{user.name}</a>
+              <a href={`mailto:${user?.email}`}>{user?.name}</a>
             </p>
           </div>
         </div>

@@ -8,16 +8,14 @@ import { TodoFilter } from './components/TodoFilter';
 import { TodoModal } from './components/TodoModal';
 import { Loader } from './components/Loader';
 import { Todo } from './types/Todo';
-import { getTodos, getUser } from './api';
-import { User } from './types/User';
+import { getTodos } from './api';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>(todos);
   const [query, setQuery] = useState<string>('');
-  const [status, setStatus] = useState<string>('all'); // all, active, completed
+  const [status, setStatus] = useState<string>('all');
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
-  const [user, setUser] = useState<User | null>(null);
 
   const [loadingTodos, setLoadingTodos] = useState(false);
 
@@ -54,16 +52,10 @@ export const App: React.FC = () => {
 
   const onOpenModal = (todo: Todo) => {
     setSelectedTodo(todo);
-    setLoadingTodos(true);
-
-    getUser(todo.userId)
-      .then(setUser)
-      .finally(() => setLoadingTodos(false));
   };
 
   const onCloseModal = () => {
     setSelectedTodo(null);
-    setUser(null);
   };
 
   useEffect(() => {
@@ -110,12 +102,11 @@ export const App: React.FC = () => {
           </div>
         </div>
       </div>
-      {selectedTodo && user && (
+      {selectedTodo && (
         <TodoModal
-          user={user}
-          selectedTodo={selectedTodo}
+          id={selectedTodo.id}
+          todos={todos}
           onCloseModal={onCloseModal}
-          loadingTodos={loadingTodos}
         />
       )}
     </>
