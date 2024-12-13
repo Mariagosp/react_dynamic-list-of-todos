@@ -5,29 +5,29 @@ import { User } from '../../types/User';
 import { getUser } from '../../api';
 
 type Props = {
-  onCloseModal: () => void;
+  handleCloseModal: () => void;
   todo: Todo;
 };
 
 export const TodoModal: React.FC<Props> = props => {
-  const { onCloseModal, todo } = props;
+  const { handleCloseModal, todo } = props;
 
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    setLoading(true);
+    setIsLoading(true);
 
     getUser(todo.userId)
       .then(data => setUser(data))
-      .finally(() => setLoading(false));
+      .finally(() => setIsLoading(false));
   }, []);
 
   return (
     <div className="modal is-active" data-cy="modal">
       <div className="modal-background" />
 
-      {loading ? (
+      {isLoading ? (
         <Loader />
       ) : (
         <div className="modal-card">
@@ -44,7 +44,7 @@ export const TodoModal: React.FC<Props> = props => {
               type="button"
               className="delete"
               data-cy="modal-close"
-              onClick={onCloseModal}
+              onClick={handleCloseModal}
             />
           </header>
 

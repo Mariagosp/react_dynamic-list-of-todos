@@ -1,13 +1,14 @@
 import React from 'react';
 import { Todo } from '../../types/Todo';
+import cn from 'classnames';
 type Props = {
   todos: Todo[];
-  onOpenModal: (todo: Todo) => void;
+  handleOpenModal: (todo: Todo) => void;
   selectedTodoId: number | null;
 };
 
 export const TodoList: React.FC<Props> = props => {
-  const { todos, onOpenModal, selectedTodoId } = props;
+  const { todos, handleOpenModal, selectedTodoId } = props;
 
   return (
     <table className="table is-narrow is-fullwidth">
@@ -28,9 +29,7 @@ export const TodoList: React.FC<Props> = props => {
         {todos.map(todo => (
           <tr
             data-cy="todo"
-            className={
-              selectedTodoId === todo.id ? 'has-background-info-light' : ''
-            }
+            className={cn({'has-background-info-light' : selectedTodoId === todo.id})}
             key={todo.id}
           >
             <td className="is-vcentered">{todo.id}</td>
@@ -55,7 +54,7 @@ export const TodoList: React.FC<Props> = props => {
                 data-cy="selectButton"
                 className="button"
                 type="button"
-                onClick={() => onOpenModal(todo)}
+                onClick={() => handleOpenModal(todo)}
               >
                 <span className="icon">
                   <i

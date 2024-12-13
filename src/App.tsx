@@ -13,52 +13,50 @@ import { Filters } from './types/Filters';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [query, setQuery] = useState<string>('');
-  const [status, setStatus] = useState<string>('all');
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState<Filters>(Filters.ALL);
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
 
-  const [loadingTodos, setLoadingTodos] = useState(true);
+  const [isLoadingTodos, setIsLoadingTodos] = useState(true);
 
-  const filteredTodos = todos
-    .filter(todo => todo.title.toLowerCase().includes(query.toLowerCase()))
-    .filter(todo => {
-      if (status === Filters.ALL) {
-        return true;
-      }
+  const filteredTodos = todos.filter(todo => {
+    const matchesQuery = todo.title.toLowerCase().includes(query.toLowerCase());
 
-      return status === Filters.COMPLETED ? todo.completed : !todo.completed;
-    });
+    if (status === Filters.ALL) return matchesQuery;
+    const matchesStatus = (status === Filters.COMPLETED ? todo.completed : !todo.completed);
+    return matchesQuery && matchesStatus;
+  })
 
-  const selected = todos.find(todo => todo.id === selectedTodoId);
+  const selectedTodo = todos.find(todo => todo.id === selectedTodoId);
 
-  const onQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
   };
 
-  const onReset = () => {
+  const handleReset = () => {
     setQuery('');
   };
 
-  const onOpenModal = (todo: Todo) => {
+  const handleOpenModal = (todo: Todo) => {
     setSelectedTodoId(todo.id);
   };
 
-  const onCloseModal = () => {
+  const handleCloseModal = () => {
     setSelectedTodoId(null);
   };
 
-  const onStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setStatus(event.target.value as Filters);
   };
 
   useEffect(() => {
-    setLoadingTodos(true);
+    setIsLoadingTodos(true);
 
     getTodos()
       .then(data => {
         setTodos(data);
       })
-      .finally(() => setLoadingTodos(false));
+      .finally(() => setIsLoadingTodos(false));
   }, []);
 
   return (
@@ -71,27 +69,28 @@ export const App: React.FC = () => {
             <div className="block">
               <TodoFilter
                 query={query}
-                onQueryChange={onQueryChange}
-                onReset={onReset}
-                onStatusChange={onStatusChange}
+                handleQueryChange={handleQueryChange}
+                handleReset={handleReset}
+                handleStatusChange={handleStatusChange}
               />
             </div>
 
             <div className="block">
-              {loadingTodos && todos.length === 0 && <Loader />}
-              {!loadingTodos && (
+              {isLoadingTodos && !todos.length ? (
+                <Loader />
+              ) : (
                 <TodoList
                   todos={filteredTodos}
                   selectedTodoId={selectedTodoId}
-                  onOpenModal={onOpenModal}
+                  handleOpenModal={handleOpenModal}
                 />
               )}
             </div>
           </div>
         </div>
       </div>
-      {selectedTodoId && selected && (
-        <TodoModal todo={selected} onCloseModal={onCloseModal} />
+      {selectedTodoId && selectedTodo && (
+        <TodoModal todo={selectedTodo} handleCloseModal={handleCloseModal} />
       )}
     </>
   );
