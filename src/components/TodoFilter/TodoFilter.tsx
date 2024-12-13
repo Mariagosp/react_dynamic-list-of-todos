@@ -1,25 +1,23 @@
+import { Filters } from '../../types/Filters';
+
 type Props = {
   query: string;
   onQueryChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onReset: () => void;
-  onStatusChange: (newStatus: string) => void;
+  onStatusChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export const TodoFilter: React.FC<Props> = props => {
   const { query, onQueryChange, onReset, onStatusChange } = props;
 
-  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    onStatusChange(event.target.value);
-  };
-
   return (
     <form className="field has-addons">
       <p className="control">
         <span className="select">
-          <select data-cy="statusSelect" onChange={handleStatusChange}>
-            <option value="all">All</option>
-            <option value="active">Active</option>
-            <option value="completed">Completed</option>
+          <select data-cy="statusSelect" onChange={onStatusChange}>
+            <option value={Filters.ALL}>All</option>
+            <option value={Filters.ACTIVE}>Active</option>
+            <option value={Filters.COMPLETED}>Completed</option>
           </select>
         </span>
       </p>
